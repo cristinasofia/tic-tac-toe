@@ -14,30 +14,31 @@ const DifficultyModal = ({ show, onHide, setDifficulty }) => {
       </Modal.Header>
       <Modal.Body>
         <p>Choose the difficulty level for your game:</p>
-        <div className="d-flex justify-content-between gap-2">
+        {/* <div className="d-flex justify-content-between gap-2"> */}
+        <div className="d-flex flex-column gap-2">
           <Button
-            className="flex-grow-1"
+            className="w-100"
             variant="success"
             onClick={() => handleDifficultySelect("Easy")}
           >
             Easy
           </Button>
           <Button
-            className="flex-grow-1"
+            className="w-100"
             variant="warning"
             onClick={() => handleDifficultySelect("Medium")}
           >
             Medium
           </Button>
           <Button
-            className="flex-grow-1"
+            className="w-100"
             variant="danger"
             onClick={() => handleDifficultySelect("Hard")}
           >
             Hard
           </Button>
           <Button
-            className="flex-grow-1"
+            className="w-100"
             variant="dark"
             onClick={() => handleDifficultySelect("Hardest")}
           >
