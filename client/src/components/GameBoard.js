@@ -45,7 +45,7 @@ function GameBoard() {
     //   .then(setGame);
 
     // User Move
-    const userMoveResponse = await fetch("http://localhost:5001/move", {
+    const userMoveResponse = await fetch("http://localhost:5001/game/move", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ index }),
@@ -56,11 +56,12 @@ function GameBoard() {
     if (updatedGame.winner || !updatedGame.board.includes(null)) return;
 
     // AI Move
-    const aiMoveResponse = await fetch("http://localhost:5001/ai-move", {
+    const aiMoveResponse = await fetch("http://localhost:5001/ai/move", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ difficulty }),
     });
+    console.log("ai move?");
     const aiGame = await aiMoveResponse.json();
     setGame(aiGame);
   };
@@ -79,7 +80,7 @@ function GameBoard() {
 
   const resetGame = () => {
     // Reset the game state on both client and server
-    fetch("http://localhost:5001/reset", {
+    fetch("http://localhost:5001/game/reset", {
       method: "POST",
     })
       .then((res) => {
@@ -102,8 +103,8 @@ function GameBoard() {
     // localStorage.clear();
     // sessionStorage.clear();
 
-    // Redirect to the landing page
-    navigate("/");
+    // Redirect to the login page
+    navigate("/login");
   };
 
   return (
