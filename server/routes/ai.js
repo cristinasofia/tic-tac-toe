@@ -1,10 +1,10 @@
 const express = require("express");
+const { findBestMoveWithAI } = require("../services/ai");
 const {
   findRandomMove,
   findBasicMove,
   findBestMove,
-  findBestMoveWithAI,
-} = require("../services/ai");
+} = require("../services/move");
 const { getGameState, updateGameState } = require("../shared/gameState.js");
 const { saveRecordMove } = require("../shared/recordedGame.js");
 const checkWinner = require("../utils/checkWinner.js");
