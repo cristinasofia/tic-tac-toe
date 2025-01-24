@@ -1,8 +1,9 @@
 const checkWinner = require("../utils/checkWinner.js");
-const tf = require("@tensorflow/tfjs");
-const fs = require("fs");
+const tf = require("@tensorflow/tfjs-node");
+const { loadRecordedGames } = require("../shared/recordedGame.js");
 
-let model;
+const player1 = "X";
+const player2 = "O";
 
 // Difficulty: Easy
 function findRandomMove(board) {
@@ -33,13 +34,13 @@ function findBasicMove(board) {
 
   // Check if the opponent (X) has a winning move
   for (const [a, b, c] of winningCombinations) {
-    if (board[a] === "X" && board[b] === "X" && board[c] === null) {
+    if (board[a] === player1 && board[b] === player1 && board[c] === null) {
       return c; // Block the winning move
     }
-    if (board[a] === "X" && board[c] === "X" && board[b] === null) {
+    if (board[a] === player1 && board[c] === player1 && board[b] === null) {
       return b; // Block the winning move
     }
-    if (board[b] === "X" && board[c] === "X" && board[a] === null) {
+    if (board[b] === player1 && board[c] === player1 && board[a] === null) {
       return a; // Block the winning move
     }
   }
@@ -57,7 +58,7 @@ function findBestMove(board) {
   for (let i = 0; i < board.length; i++) {
     if (board[i] === null) {
       // Simulate AI move
-      board[i] = "O"; // AI is "O"
+      board[i] = player2; // AI is "O"
       const score = minimax(board, 0, false); // Call Minimax
       board[i] = null; // Undo move
 
@@ -75,15 +76,15 @@ function minimax(board, depth, isMaximizing) {
   const winner = checkWinner(board);
 
   // Base cases
-  if (winner === "O") return 10 - depth; // AI wins
-  if (winner === "X") return depth - 10; // Opponent wins
+  if (winner === player2) return 10 - depth; // AI wins
+  if (winner === player1) return depth - 10; // Opponent wins
   if (!board.includes(null)) return 0; // Draw
 
   if (isMaximizing) {
     let bestScore = -Infinity;
     for (let i = 0; i < board.length; i++) {
       if (board[i] === null) {
-        board[i] = "O"; // AI makes a move
+        board[i] = player2; // AI makes a move
         const score = minimax(board, depth + 1, false);
         board[i] = null; // Undo move
         bestScore = Math.max(score, bestScore);
@@ -94,7 +95,7 @@ function minimax(board, depth, isMaximizing) {
     let bestScore = Infinity;
     for (let i = 0; i < board.length; i++) {
       if (board[i] === null) {
-        board[i] = "X"; // Opponent makes a move
+        board[i] = player1; // Opponent makes a move
         const score = minimax(board, depth + 1, true);
         board[i] = null; // Undo move
         bestScore = Math.min(score, bestScore);
@@ -104,47 +105,109 @@ function minimax(board, depth, isMaximizing) {
   }
 }
 
-// Difficulty: Hardest
+// Difficulty: Expert
+// Convert the board into a tensor
 function boardToTensor(board) {
   return board.map((value) => {
-    if (value === "O") return 1; // AI's moves
-    if (value === "X") return -1; // Player's moves
-    return 0; // Empty squares
+    if (value === player2) return 1;
+    if (value === player1) return -1;
+    return 0;
   });
+}
+
+async function prepareData() {
+  console.log("Preparing data...");
+
+  const games = await loadRecordedGames();
+
+  if (!games || games.length === 0) {
+    console.log("No recorded games found. Cannot prepare data for training.");
+    return {
+      trainData: tf.tensor2d([], [0, 9]), // Empty tensor with shape [0, 9]
+      trainLabels: tf.tensor2d([], [0, 9]), // Empty tensor with shape [0, 9]
+    };
+  }
+
+  console.log("Loaded games:", games);
+
+  const boards = [];
+  const moves = [];
+
+  games.forEach((game) => {
+    const boardTensor = boardToTensor(game.board);
+    console.log("Board Tensor:", boardTensor);
+
+    const moveTensor = Array(9).fill(0);
+    moveTensor[game.move] = 1; // One-hot encoding for the move
+
+    boards.push(boardTensor);
+    moves.push(moveTensor);
+  });
+
+  return {
+    trainData: tf.tensor2d(boards), // Shape: [numSamples, 9]
+    trainLabels: tf.tensor2d(moves), // Shape: [numSamples, 9]
+  };
 }
 
 // Define and compile the model
 function createModel() {
+  console.log("Creating model...");
+
   const model = tf.sequential();
   model.add(
     tf.layers.dense({ inputShape: [9], units: 128, activation: "relu" })
   );
   model.add(tf.layers.dense({ units: 64, activation: "relu" }));
-  model.add(tf.layers.dense({ units: 9, activation: "softmax" })); // Output: probabilities for each square
+  model.add(tf.layers.dense({ units: 9, activation: "softmax" })); // 9 outputs for each square
   model.compile({ optimizer: "adam", loss: "categoricalCrossentropy" });
   return model;
 }
 
-// Train the model with example data
+// Train the model
 async function trainModel() {
-  const trainData = tf.tensor2d([
-    // Example board states (flattened arrays)
-    [1, -1, 0, 0, 0, 0, 0, 0, 0], // O's turn
-    [-1, 1, 0, 0, 0, 0, 0, 0, 0], // X's turn
-    // Add more training data
-  ]);
+  console.log("Starting training...");
 
-  const trainLabels = tf.tensor2d([
-    // Corresponding best moves (as one-hot encoded arrays)
-    [0, 0, 1, 0, 0, 0, 0, 0, 0], // O should play at index 2
-    [0, 0, 0, 1, 0, 0, 0, 0, 0], // X should play at index 3
-    // Add more labels
-  ]);
+  const { trainData, trainLabels } = await prepareData();
+  const model = createModel();
 
-  await model.fit(trainData, trainLabels, { epochs: 100 });
+  // console.log("trainData shape:", trainData.shape);
+  // console.log("trainLabels shape:", trainLabels.shape);
+
+  await model.fit(trainData, trainLabels, {
+    epochs: 50,
+    batchSize: 32,
+    shuffle: true,
+    verbose: 0,
+    callbacks: {
+      onEpochEnd: (epoch, logs) => {
+        console.log(`Epoch ${epoch + 1}: Loss = ${logs.loss.toFixed(4)}`);
+      },
+    },
+  });
+
+  try {
+    console.log("Training complete. Saving the model...");
+    await model.save("file://../data"); // Save model to disk
+    console.log("Model saved successfully.");
+  } catch (err) {
+    console.error("Error saving model:", err.message);
+  }
 }
 
-function findBestMoveWithAI(board) {
+// Load the saved model
+async function loadModel() {
+  console.log("Loading model...");
+
+  const model = await tf.loadLayersModel("file://../data/model.json");
+  console.log("Model loaded successfully.");
+  return model;
+}
+
+async function findBestMoveWithAI(board) {
+  console.log("Thinking...");
+
+  const model = await loadModel();
   const tensorBoard = tf.tensor2d([boardToTensor(board)]);
   const predictions = model.predict(tensorBoard).dataSync();
 
@@ -162,7 +225,6 @@ function findBestMoveWithAI(board) {
 }
 
 async function initializeAI() {
-  model = createModel();
   await trainModel();
 }
 

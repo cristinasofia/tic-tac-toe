@@ -40,9 +40,9 @@ const DifficultyModal = ({ show, onHide, setDifficulty }) => {
           <Button
             className="w-100"
             variant="dark"
-            onClick={() => handleDifficultySelect("Hardest")}
+            onClick={() => handleDifficultySelect("Expert")}
           >
-            Hardest
+            Expert
           </Button>
         </div>
       </Modal.Body>

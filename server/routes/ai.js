@@ -1,5 +1,4 @@
 const express = require("express");
-const checkWinner = require("../utils/checkWinner.js");
 const {
   findRandomMove,
   findBasicMove,
@@ -7,10 +6,12 @@ const {
   findBestMoveWithAI,
 } = require("../services/ai");
 const { getGameState, updateGameState } = require("../shared/gameState.js");
+const { saveRecordMove } = require("../shared/recordedGame.js");
+const checkWinner = require("../utils/checkWinner.js");
 
 const router = express.Router();
 
-router.post("/move", (req, res) => {
+router.post("/move", async (req, res) => {
   const { difficulty } = req.body;
   const gameState = getGameState();
 
@@ -30,9 +31,9 @@ router.post("/move", (req, res) => {
   } else if (difficulty === "Hard") {
     // Minimax logic
     aiMove = findBestMove(gameState.board);
-  } else if (difficulty === "Hardest") {
+  } else if (difficulty === "Expert") {
     // TensorFlow / ML-Based AI
-    aiMove = findBestMoveWithAI(gameState.board);
+    aiMove = await findBestMoveWithAI(gameState.board);
   }
 
   if (gameState.board[aiMove] === null && !gameState.winner) {
@@ -40,6 +41,7 @@ router.post("/move", (req, res) => {
     gameState.currentPlayer = "X";
     gameState.winner = checkWinner(gameState.board);
     updateGameState(gameState);
+    saveRecordMove(gameState.board, aiMove, gameState.winner);
   }
 
   res.json(getGameState());

@@ -1,4 +1,3 @@
-// gameState.js
 let gameState = {
   board: Array(9).fill(null),
   currentPlayer: "X",

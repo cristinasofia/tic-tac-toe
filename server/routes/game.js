@@ -5,6 +5,7 @@ const {
   resetGameState,
   updateGameState,
 } = require("../shared/gameState.js");
+const { saveRecordMove } = require("../shared/recordedGame.js");
 
 const router = express.Router();
 
@@ -24,10 +25,10 @@ router.post("/move", (req, res) => {
 
   if (gameState.board[index] === null && !gameState.winner) {
     gameState.board[index] = gameState.currentPlayer;
-    // gameState.currentPlayer = gameState.currentPlayer == "X" ? "O" : "X";
     gameState.currentPlayer = "O";
     gameState.winner = checkWinner(gameState.board);
     updateGameState(gameState);
+    saveRecordMove(gameState.board, index, gameState.winner);
   }
 
   res.json(getGameState());
