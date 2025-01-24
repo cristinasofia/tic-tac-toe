@@ -6,17 +6,17 @@ A Tic-Tac-Toe web application where the player (you) can compete against an AI o
 
 ## **Features**
 
-- 🔑 **User Authentication**: Users can sign up, log in, and have their game sessions saved securely.
+- 🔑 **User Authentication**: Users can sign up, log in, and have their game sessions saved securely
 - 🎮 **Game Modes**:
-  - Player vs AI with three difficulty levels:
-    - Easy: Random moves.
-    - Medium: Rule-based logic.
-    - Hard: Minimax algorithm.
-    - Expert: TensorFlow-based AI.
-  - Reset and track progress for each game.
+  - Player vs any of the four difficulty levels:
+    - Easy: Random moves
+    - Medium: Rule-based logic
+    - Hard: Minimax algorithm
+    - Expert: TensorFlow-based AI
+  - Reset or play again
 - 🧠 **AI Learning**:
-  - Recorded games are stored in MongoDB to train the TensorFlow AI for the hardest mode.
-- 🎨 **Responsive Design**: Built with **Bootstrap**, making it mobile-friendly and modern.
+  - Games are recorded and stored in MongoDB to train the TensorFlow AI (for the expert mode)
+- 🎨 **Responsive Design**: Built with **Bootstrap**
 - ⚙️ **Tech Stack**:
   - Frontend: React.js, Bootstrap
   - Backend: Node.js, Express.js, MongoDB
@@ -53,9 +53,10 @@ A Tic-Tac-Toe web application where the player (you) can compete against an AI o
    ```bash
    JWT_SECRET=your_secret_key
    MONGO_URI=your_mongo_connection_string
+   PORT=XXXX
    ```
 
-4. Start the MongoDB server (if running locally).
+4. Start the MongoDB server (if running locally)
 
 5. Run the development server:
    ```bash
@@ -86,7 +87,7 @@ A Tic-Tac-Toe web application where the player (you) can compete against an AI o
 │   ├── config             # Database config
 │   ├── models/            # Mongoose models (e.g., User, Game)
 │   ├── routes/            # API routes
-│   ├── services/          # Board moves and AI-related logic (e.g., Minimax, TensorFlow)
+│   ├── services/          # Board moves and AI-related logic
 │   ├── shared/            # Shared utilities (e.g., game state)
 │   ├── utils/             # Helper functions (e.g., winner checking)
 │   └── index.js           # Entry point for the server
@@ -131,7 +132,7 @@ The AI picks a random empty square
 
 ### **Medium Mode**
 
-The AI blocks the player’s winning move or makes a random move
+The AI blocks the player's winning move or makes a random move
 
 ### **Hard Mode**
 
@@ -139,28 +140,26 @@ The AI uses the **Minimax Algorithm** to find the optimal move
 
 ### **Expert Mode**
 
-The AI uses **TensorFlow.js** to learn from previously recorded games (and hopefully improves over time)
+The AI uses **TensorFlow.js** to learn from previously recorded games (and hopefully improve over time)
 
 ---
 
 ## **Future Enhancements**
 
-- [ ] Add multiplayer support.
-- [ ] Implement player statistics and leaderboards.
-- [ ] Improve the TensorFlow model with more complex training data.
-- [ ] Introduce animations for moves.
+- [ ] Add multiplayer support
+- [ ] Implement player statistics and leaderboards
+- [ ] Improve the TensorFlow model with more complex training data
+- [ ] Introduce animations for moves
 
 ---
 
 ## **Contributing**
 
-Contributions are welcome! To get started:
-
-1. Fork this repository.
-2. Create a new branch: `git checkout -b feature-name`.
-3. Commit your changes: `git commit -m 'Add a new feature'`.
-4. Push the branch: `git push origin feature-name`.
-5. Open a pull request.
+1. Fork this repo
+2. Create a new branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add a new feature'`
+4. Push the branch: `git push origin feature-name`
+5. Open a pull request
 
 ---
 
